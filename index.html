@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Text Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --bg-color: #f5f7fa;
+            --text-color: #333;
+            --light-gray: #e0e0e0;
+            --dark-gray: #7f8c8d;
+            --card-bg: #fff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --highlight-color: #e1f0fa;
+            --border-radius: 8px;
+        }
+        
+        [data-theme="dark"] {
+            --primary-color: #4fa3d1;
+            --bg-color: #1a1a2e;
+            --text-color: #f0f0f0;
+            --light-gray: #2c3e50;
+            --dark-gray: #95a5a6;
+            --card-bg: #16213e;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --highlight-color: #1a3c5a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 1.6rem;
+        }
+        
+        .editor-container {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px var(--shadow-color);
+            padding: 15px;
+        }
+        
+        #editor {
+            width: 100%;
+            height: 280px;
+            padding: 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            line-height: 1.5;
+            resize: vertical;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        #editor:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .suggestions {
+            position: absolute;
+            background: var(--card-bg);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            max-height: 180px;
+            overflow-y: auto;
+            width: 220px;
+            box-shadow: 0 4px 8px var(--shadow-color);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-item:hover, .suggestion-item.active {
+            background-color: var(--highlight-color);
+            color: var(--primary-color);
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .toolbar-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .toolbar-button {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .toolbar-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 22px;
+        }
+        
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--light-gray);
+            transition: .3s;
+            border-radius: 22px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        .word-count {
+            font-size: 13px;
+            color: var(--dark-gray);
+            margin-top: 8px;
+        }
+        
+        .info-text {
+            text-align: center;
+            color: var(--dark-gray);
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            .editor-container {
+                padding: 12px;
+            }
+            
+            #editor {
+                height: 220px;
+                padding: 10px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .toolbar-buttons {
+                width: 100%;
+                justify-content: space-between;
+                margin-bottom: 8px;
+            }
+            
+            .toolbar-button span {
+                display: none;
+            }
+            
+            .theme-container {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Smart Text Editor</h1>
+        
+        <div class="editor-container">
+            <div class="toolbar">
+                <div class="toolbar-buttons">
+                    <button class="toolbar-button" id="clear-button">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Clear</span>
+                    </button>
+                    <button class="toolbar-button" id="copy-button">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy</span>
+                    </button>
+                    <button class="toolbar-button" id="download-button">
+                        <i class="fas fa-download"></i>
+                        <span>Save</span>
+                    </button>
+                </div>
+                <div class="theme-container">
+                    <label class="theme-switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span id="theme-label" style="margin-left: 8px; font-size: 13px;">Dark Mode</span>
+                </div>
+            </div>
+            
+            <textarea id="editor" placeholder="Type here... (2+ characters for suggestions)"></textarea>
+            <div id="suggestions" class="suggestions"></div>
+            <div class="word-count" id="word-count">Words: 0 | Characters: 0</div>
+        </div>
+        
+        <p class="info-text">Use ↑↓ arrows to navigate, Enter to select, Esc to hide</p>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html> 
