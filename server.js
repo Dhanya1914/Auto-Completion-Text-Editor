@@ -15,7 +15,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Dictionary for word suggestions - grouped by first letter for better performance
 const dictionary = {
   a: ['apple', 'application', 'amazing', 'automobile', 'architect', 'android', 'azure', 'awesome', 'algorithm', 'artificial', 'analogy', 'academic', 'achievement', 'apartment', 'adventure'],
   b: ['banana', 'beautiful', 'business', 'basketball', 'bicycle', 'battery', 'butterfly', 'building', 'birthday', 'browser', 'brilliant', 'benefit', 'balance', 'background', 'brother'],
